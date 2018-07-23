@@ -21,6 +21,43 @@ const Player = (props) => {
   )
 }
 
+class Board extends React.Component {
+
+  createSquares() {
+    let customBoard = []
+    let customRow = prompt('Please enter number of rows', 2)
+    let customColumn = prompt('Please enter number of columns', 2)
+
+    while (customRow < 2 || isNaN(customRow)) {
+      customRow = prompt('Please enter number of rows.' + 
+        'Only numbers greater than 1 are allowed.', 2)
+    }
+
+    while (customColumn < 2 || isNaN(customColumn)) {
+      customColumn = prompt('Please enter number of columns.' + 
+        'Only numbers greater than 1 are allowed.', 2)
+    }
+
+    for (let row = 0; row < customRow; row++) {
+      let boardSquareRow = []
+      for (let column = 0; column < customColumn; column++) {
+        boardSquareRow.push(<Square />)
+      }
+      customBoard.push(<div className="board-row">{ boardSquareRow }</div>)
+    }
+    return customBoard
+  }
+
+  render() {
+    return (
+      <div>
+        {this.createSquares()}
+        
+      </div>
+    )
+  }
+}
+
 
 ReactDOM.render(
   <Game />,
