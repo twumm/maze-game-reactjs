@@ -58,6 +58,10 @@ class Board extends React.Component {
   }
 }
 
+class Sprite extends React.Component {
+
+}
+
 
 ReactDOM.render(
   <Game />,
