@@ -128,12 +128,11 @@ class Game extends React.Component {
     // Listen for key events and trigger updates to player sprite where necessary.
     document.addEventListener('keyup', (e) => {
       const allowedKeys = {
-          37: 'left',
-          38: 'up',
-          39: 'right',
-          40: 'down'
+          37: "left",
+          38: "up",
+          39: "right",
+          40: "down"
       };
-      console.log(e.keyCode)
       this.handlePlayer(allowedKeys[e.keyCode])
     })
   }
@@ -149,16 +148,16 @@ class Game extends React.Component {
   handlePlayer(allowedKeys) {
     switch (allowedKeys) {
       case "left": 
-        document.getElementById("player_" + playerCoordinate).style.left = -30;
+        document.getElementById("player_" + playerCoordinate).style.left = -25;
         break
       case "right": 
-        document.getElementById("player_" + playerCoordinate).style.left = +30;
+        document.getElementById("player_" + playerCoordinate).style.left = +25;
         break
       case "up": 
-        document.getElementById("player_" + playerCoordinate).style.top = +30;
+        document.getElementById("player_" + playerCoordinate).style.top = +25;
         break
       case "down": 
-        document.getElementById("player_" + playerCoordinate).style.top = +30;
+        document.getElementById("player_" + playerCoordinate).style.top = +25;
         break
     }
   }
