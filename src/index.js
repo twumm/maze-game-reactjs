@@ -2,70 +2,67 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import './index.css'
 import player from './anonymous_hacker.png'
-import sprite from './bitcoin.png'
+import coin from './bitcoin.png'
 
-let squareArea = []
 let customBoard = []
+let rows = []
+let columns = []
+let playerCoordinate, moves
+let coordinate, customRow, customColumn
+let coinCoordinates = []
+let boardWidth, boardHeight
 
-// Create a square
-/*const Square = (props) => {
-  return (
-    <button
-      className="square"
-      onClick={() => alert(props.value)}
-    >
-    <img className="player-icon" src={player}>
-    </img>
-    </button>
-  )
-}*/
-
+// Square component for each box
 class Square extends React.Component{
   constructor(props) {
     super(props)
+    this.squareRef = React.createRef()
     this.state = {
       value: null,
     }
   }
-
-  showIcon() {
-    this.setState({display: !this.state.display})
-  }
   
   render() {
     return (
+      // Returns a box with player and coin sprites as elements.
       <button 
-        className="square"
-        /*onClick={() => !this.state.display}
-        style={{display: 'show'}}
-        // onKeyPress={() => alert(this.props.value)}*/
+        className = "square"
+        id = {this.props.id}
       >
-        <img className="player-icon" src={player} />
-        <img className="sprite-icon" src={sprite} />
+        <img 
+          className="player-icon"
+          src = {player}
+          id = {"player_" + this.props.id}
+          style={{ display: 'none', left: 0, top: 0 }}
+        />
+        <img 
+          className="coin-icon" 
+          src={coin}
+          id = {"coin_" + this.props.id}
+          style={{display: 'none'}}
+        />
       </button>
     )
   }
 }
 
-// Create a player
-const Player = (props) => {
-  return (
-    <img className="player-icon" src={player}>
-      {props.value}
-    </img>
-  )
-}
-
+// Displays the board on the screen with all rendered sprites positioned.
 class Board extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      // player: <Player />,
+      rows: [],
+      columns: []
+    };
+  }
 
-  createSquares() {
-    // let customBoard = []
-    let customRow = 4
-    // let customRow = prompt('Please enter number of rows', 2)
-    let customColumn = 4
-    // let customColumn = prompt('Please enter number of columns', 2)
-
-    /*while (customRow < 2 || isNaN(customRow)) {
+  createBoard() {
+    // Prompt the user for the number of rows and columns
+    customRow = prompt('Please enter number of rows', 5)
+    customColumn = prompt('Please enter number of columns', 5)
+    // Check if the number of rows or columns enter is valid
+    while (customRow < 2 || isNaN(customRow)) {
       customRow = prompt('Please enter number of rows.' + 
         'Only numbers greater than 1 are allowed.', 2)
     }
@@ -73,59 +70,99 @@ class Board extends React.Component {
     while (customColumn < 2 || isNaN(customColumn)) {
       customColumn = prompt('Please enter number of columns.' + 
         'Only numbers greater than 1 are allowed.', 2)
-    }*/
-
+    }
+    // Create the board.
     for (let row = 0; row < customRow; row++) {
       let boardRow = []
       for (let column = 0; column < customColumn; column++) {
-        boardRow.push(<Square value={row.toString() + column.toString()} key={row.toString() + column.toString()}/>)
-        squareArea.push(`${row}${column}`)
+        boardRow.push(<Square
+          key={`${row}_${column}`}
+          id={`${row}_${column}`}/>)
+        rows.push(row)
+        columns.push(column)
       }
       customBoard.push(<div className="board-row">{ boardRow }</div>)
     }
     return customBoard
   }
 
-  handlePlayerPosition() {
-    // console.log(customBoard[2].props.children)
-    // squareArea[4]
-    /*squareArea[2] = this.setState({
-      value: <img src={player}/>
-    })*/
-
-  }
-
   render() {
     return (
       <div>
-        {this.createSquares()}
-        {this.handlePlayerPosition()}
+        {this.createBoard()}
       </div>
     )
   }
 }
 
-class Sprite extends React.Component {
-
-}
-
+// Displays the game on the screen with all components in place.
 class Game extends React.Component {
   constructor(props) {
-    super(props)
-    this.state = {
-      player: <Player />
+    super(props);
+  }
+
+  componentDidMount() {
+    // Generate random coordinates for the player sprite to be inserted.
+    playerCoordinate = this.generateCoordinates(rows, columns)
+    // Display player in the board.
+    document.getElementById("player_" + playerCoordinate).style.display = "inline";
+    
+    // Generate random coordinates for the coin sprites.
+    for (let i = 0; i < customRow*customColumn; i++) {
+      coordinate = this.generateCoordinates(rows, columns)
+      coinCoordinates.indexOf(coordinate) === -1 && coordinate !== playerCoordinate ? coinCoordinates.push(coordinate) : null
+    }
+    // Get a defined number of coins based on the row or column length.
+    let selectedCoinCoordinates = coinCoordinates.slice(0, customRow)
+    
+    // Display the coins in the board.
+    for (let i = 0; i < selectedCoinCoordinates.length; i++) {
+      coordinate = selectedCoinCoordinates[i]
+      document.getElementById("coin_" + coordinate).style.display = "inline";
+    }
+    
+    // Get the borders of the entire game's board to aid in collision detection.
+    boardWidth = customRow * 50
+    boardHeight = customColumn * 50
+
+    // Listen for key events and trigger updates to player sprite where necessary.
+    document.addEventListener('keyup', (e) => {
+      const allowedKeys = {
+          37: 'left',
+          38: 'up',
+          39: 'right',
+          40: 'down'
+      };
+      console.log(e.keyCode)
+      this.handlePlayer(allowedKeys[e.keyCode])
+    })
+  }
+
+  // Get coordinates in a board based on the rows and columns combination
+  generateCoordinates(rowArray, columnArray) {
+    let rowCoord = rowArray[Math.floor(Math.random()*rowArray.length)]
+    let columnCoord = columnArray[Math.floor(Math.random()*columnArray.length)]
+    return(`${rowCoord}_${columnCoord}`)
+  }
+
+  // Handle player movement
+  handlePlayer(allowedKeys) {
+    switch (allowedKeys) {
+      case "left": 
+        document.getElementById("player_" + playerCoordinate).style.left = -30;
+        break
+      case "right": 
+        document.getElementById("player_" + playerCoordinate).style.left = +30;
+        break
+      case "up": 
+        document.getElementById("player_" + playerCoordinate).style.top = +30;
+        break
+      case "down": 
+        document.getElementById("player_" + playerCoordinate).style.top = +30;
+        break
     }
   }
 
-  handlePlayer() {
-    const player = this.state.player
-    console.log('e')
-    /*if (event.keyCode === 38) {
-      console.log('Entered')
-    }*/
-  }
-
-  
   render() {
     return (
       <Board />
@@ -137,3 +174,5 @@ ReactDOM.render(
   <Game />,
   document.getElementById('root')
 )
+
+

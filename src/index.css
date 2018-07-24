@@ -19,8 +19,11 @@
   display: table;
 }
 
-.player-icon, .sprite-icon {
+.player-icon, .coin-icon {
   /*width: 35px;*/
   height: 30px;
-  display: none;
+}
+
+.player-icon>img {
+  height: 40px !important;
 }
